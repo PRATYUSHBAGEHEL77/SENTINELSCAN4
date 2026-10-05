@@ -1,0 +1,285 @@
+{
+  "lab_fixed": false,
+  "findings": {
+    "LAB-AUTHZ-001": {
+      "status": "CONFIRMED",
+      "severity": "MEDIUM",
+      "previous": {
+        "id": "LAB-AUTHZ-001",
+        "title": "Broken authorization in controlled lab",
+        "severity": "MEDIUM",
+        "cvss": 6.5,
+        "cvssDetails": {
+          "score": 6.5,
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+          "attack_vector": "Network",
+          "complexity": "Low",
+          "privileges": "None",
+          "interaction": "None",
+          "scope": "U",
+          "confidentiality": "Low",
+          "integrity": "Low",
+          "availability": "None",
+          "reason": "Score derived from observed impact/exploitability assumptions; verify against the final authorized deployment context."
+        },
+        "description": "The synthetic admin endpoint returned a restricted-resource marker to an unauthenticated request.",
+        "affected": "Assessment Lab \u00b7 /api/lab/vulnerable/admin",
+        "evidence": "200 unauthorized admin marker returned",
+        "impact": "A production equivalent could cross an administrative authorization boundary.",
+        "remediation": "Enforce server-side role authorization before returning the resource; retest the identical no-credential request.",
+        "steps": [
+          "Send the request without credentials.",
+          "Observe the synthetic admin marker.",
+          "Expected: 403.",
+          "Actual: 200 before remediation."
+        ],
+        "poc": {
+          "request": "GET /api/lab/vulnerable/admin with no credentials",
+          "response": "200 VULNERABLE: ADMIN MARKER RETURNED",
+          "expected": "403 Forbidden",
+          "actual": "200 unauthorized admin marker returned",
+          "verdict": "CONFIRMED",
+          "safeScope": "127.0.0.1:8000 synthetic lab"
+        },
+        "lifecycle": "CONFIRMED"
+      },
+      "last_scan": "2026-10-05T08:22:17+00:00"
+    },
+    "LAB-IDOR-001": {
+      "status": "CONFIRMED",
+      "severity": "MEDIUM",
+      "previous": {
+        "id": "LAB-IDOR-001",
+        "title": "Insecure direct object reference (IDOR) in controlled lab",
+        "severity": "MEDIUM",
+        "cvss": 6.5,
+        "cvssDetails": {
+          "score": 6.5,
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+          "attack_vector": "Network",
+          "complexity": "Low",
+          "privileges": "None",
+          "interaction": "None",
+          "scope": "U",
+          "confidentiality": "Low",
+          "integrity": "Low",
+          "availability": "None",
+          "reason": "Score derived from observed impact/exploitability assumptions; verify against the final authorized deployment context."
+        },
+        "description": "A synthetic object endpoint returned another synthetic user object without an ownership check.",
+        "affected": "Assessment Lab \u00b7 /api/lab/vulnerable/idor?object_id=2",
+        "evidence": "200 unauthorized synthetic object returned",
+        "impact": "Cross-user object access would expose or alter records if the same authorization flaw existed in production.",
+        "remediation": "Enforce object ownership/tenant authorization on every object lookup; return 403 for unauthorized IDs; retest the identical request.",
+        "steps": [
+          "Request object_id=2 without an authorized owner context.",
+          "Observe the synthetic owner marker.",
+          "Expected: 403.",
+          "Actual: 200 before remediation."
+        ],
+        "poc": {
+          "request": "GET /api/lab/vulnerable/idor?object_id=2 with no credentials",
+          "response": "200 VULNERABLE: OBJECT RETURNED",
+          "expected": "403 Forbidden for an object not owned by caller",
+          "actual": "200 unauthorized synthetic object returned",
+          "verdict": "CONFIRMED",
+          "safeScope": "127.0.0.1:8000 synthetic lab"
+        },
+        "lifecycle": "CONFIRMED"
+      },
+      "last_scan": "2026-10-05T08:22:17+00:00"
+    },
+    "LAB-XSS-001": {
+      "status": "CONFIRMED",
+      "severity": "MEDIUM",
+      "previous": {
+        "id": "LAB-XSS-001",
+        "title": "Reflected XSS output encoding failure in controlled lab",
+        "severity": "MEDIUM",
+        "cvss": 5.3,
+        "cvssDetails": {
+          "score": 5.3,
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+          "attack_vector": "Network",
+          "complexity": "Low",
+          "privileges": "None",
+          "interaction": "None",
+          "scope": "U",
+          "confidentiality": "Low",
+          "integrity": "None",
+          "availability": "None",
+          "reason": "Score derived from observed impact/exploitability assumptions; verify against the final authorized deployment context."
+        },
+        "description": "A synthetic query value was reflected into an HTML field without output encoding.",
+        "affected": "Assessment Lab \u00b7 /api/lab/vulnerable/xss",
+        "evidence": "Unencoded synthetic reflection",
+        "impact": "A production equivalent could execute attacker-controlled script in another user\u2019s browser and access browser-visible application data.",
+        "remediation": "Contextually encode untrusted output before HTML insertion; use a restrictive CSP as defense in depth; retest the same payload.",
+        "steps": [
+          "Submit a benign script marker in q.",
+          "Observe the returned HTML field.",
+          "Expected: encoded text.",
+          "Actual: unencoded reflection before remediation."
+        ],
+        "poc": {
+          "request": "GET /api/lab/vulnerable/xss?q=%3Cscript%3E",
+          "response": "VULNERABLE: INPUT REFLECTED UNENCODED",
+          "expected": "HTML-encoded output",
+          "actual": "Unencoded synthetic reflection",
+          "verdict": "CONFIRMED",
+          "safeScope": "127.0.0.1:8000 synthetic lab"
+        },
+        "lifecycle": "CONFIRMED"
+      },
+      "last_scan": "2026-10-05T08:22:17+00:00"
+    },
+    "LAB-JWT-001": {
+      "status": "CONFIRMED",
+      "severity": "HIGH",
+      "previous": {
+        "id": "LAB-JWT-001",
+        "title": "JWT algorithm confusion (alg:none) in controlled lab",
+        "severity": "HIGH",
+        "cvss": 9.1,
+        "cvssDetails": {
+          "score": 9.1,
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+          "attack_vector": "Network",
+          "complexity": "Low",
+          "privileges": "None",
+          "interaction": "None",
+          "scope": "U",
+          "confidentiality": "High",
+          "integrity": "High",
+          "availability": "None",
+          "reason": "Score derived from observed impact/exploitability assumptions; verify against the final authorized deployment context."
+        },
+        "description": "A synthetic JWT verification endpoint accepted an unsigned token and granted an admin role marker.",
+        "affected": "Assessment Lab \u00b7 /api/lab/vulnerable/jwt",
+        "evidence": "200 unsigned JWT accepted with admin marker",
+        "impact": "A production equivalent could allow privilege escalation where JWT signatures are not enforced.",
+        "remediation": "Pin accepted algorithms server-side, require a valid signature and key, validate issuer/audience/expiry, and reject alg:none; retest the same token condition.",
+        "steps": [
+          "Submit the synthetic unsigned JWT condition.",
+          "Observe role=admin marker.",
+          "Expected: 401.",
+          "Actual: 200 before remediation."
+        ],
+        "poc": {
+          "request": "GET /api/lab/vulnerable/jwt with synthetic unsigned-token condition",
+          "response": "200 VULNERABLE: UNSIGNED JWT ACCEPTED",
+          "expected": "401 signature required",
+          "actual": "200 unsigned JWT accepted with admin marker",
+          "verdict": "CONFIRMED",
+          "safeScope": "127.0.0.1:8000 synthetic lab"
+        },
+        "lifecycle": "CONFIRMED"
+      },
+      "last_scan": "2026-10-05T08:22:17+00:00"
+    },
+    "LAB-SSRF-001": {
+      "status": "CONFIRMED",
+      "severity": "MEDIUM",
+      "previous": {
+        "id": "LAB-SSRF-001",
+        "title": "SSRF destination validation failure in controlled lab",
+        "severity": "MEDIUM",
+        "cvss": 5.3,
+        "cvssDetails": {
+          "score": 5.3,
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+          "attack_vector": "Network",
+          "complexity": "Low",
+          "privileges": "None",
+          "interaction": "None",
+          "scope": "U",
+          "confidentiality": "Low",
+          "integrity": "None",
+          "availability": "None",
+          "reason": "Score derived from observed impact/exploitability assumptions; verify against the final authorized deployment context."
+        },
+        "description": "A synthetic fetch endpoint accepted a loopback destination without allowlisting or network-boundary validation.",
+        "affected": "Assessment Lab \u00b7 /api/lab/vulnerable/ssrf",
+        "evidence": "200 destination accepted",
+        "impact": "A production equivalent could allow access to internal services or metadata endpoints.",
+        "remediation": "Use an explicit destination allowlist, resolve and validate IPs after DNS, block loopback/private/link-local ranges, and apply egress network controls.",
+        "steps": [
+          "Submit a loopback URL to the synthetic fetch endpoint.",
+          "Observe accepted_destination.",
+          "Expected: 400.",
+          "Actual: 200 before remediation."
+        ],
+        "poc": {
+          "request": "GET /api/lab/vulnerable/ssrf?url=http://127.0.0.1:8100/",
+          "response": "200 VULNERABLE: DESTINATION ACCEPTED",
+          "expected": "400 blocked destination",
+          "actual": "200 destination accepted",
+          "verdict": "CONFIRMED",
+          "safeScope": "127.0.0.1:8000 synthetic lab"
+        },
+        "lifecycle": "CONFIRMED"
+      },
+      "last_scan": "2026-10-05T08:22:17+00:00"
+    },
+    "SS-HEADERS-001": {
+      "status": "CONFIRMED",
+      "severity": "LOW",
+      "previous": {
+        "id": "SS-HEADERS-001",
+        "title": "Missing baseline security headers in the SentinelScan local development server",
+        "severity": "LOW",
+        "cvss": 5.3,
+        "cvssDetails": {
+          "score": 5.3,
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+          "attack_vector": "Network",
+          "complexity": "Low",
+          "privileges": "None",
+          "interaction": "None",
+          "scope": "U",
+          "confidentiality": "Low",
+          "integrity": "None",
+          "availability": "None",
+          "reason": "Score derived from observed impact/exploitability assumptions; verify against the final authorized deployment context."
+        },
+        "description": "The SentinelScan local development server does not emit one or more recommended browser security headers. This is a local development hardening finding, not evidence that World Monitor production is vulnerable.",
+        "affected": "SentinelScan local development server \u00b7 GET / response headers",
+        "evidence": "missing=['Content-Security-Policy', 'X-Content-Type-Options', 'Referrer-Policy', 'Permissions-Policy']",
+        "impact": "Missing browser security headers can reduce defense in depth against content injection, framing and unwanted browser behavior if an application-layer flaw is later introduced.",
+        "remediation": "Add a reviewed Content-Security-Policy, X-Content-Type-Options: nosniff, a restrictive Referrer-Policy and an appropriate Permissions-Policy; validate the policy in staging and retest the response headers.",
+        "steps": [
+          "Request the SentinelScan root page.",
+          "Capture response headers.",
+          "Compare against the security-header baseline.",
+          "Record each missing header and retest after configuration changes."
+        ],
+        "poc": {
+          "request": "GET /",
+          "response": "HTTP 200; missing=['Content-Security-Policy', 'X-Content-Type-Options', 'Referrer-Policy', 'Permissions-Policy']",
+          "expected": "CSP, X-Content-Type-Options, Referrer-Policy and Permissions-Policy as applicable",
+          "actual": "missing=['Content-Security-Policy', 'X-Content-Type-Options', 'Referrer-Policy', 'Permissions-Policy']",
+          "verdict": "CONFIRMED",
+          "safeScope": "127.0.0.1:8000 SentinelScan local development server"
+        },
+        "lifecycle": "CONFIRMED"
+      },
+      "last_scan": "2026-10-05T08:22:17+00:00"
+    }
+  },
+  "history": [
+    {
+      "timestamp": "2026-10-05T08:22:17+00:00",
+      "action": "ASSESSMENT",
+      "finding_ids": [
+        "LAB-AUTHZ-001",
+        "LAB-IDOR-001",
+        "LAB-XSS-001",
+        "LAB-JWT-001",
+        "LAB-SSRF-001",
+        "SS-HEADERS-001"
+      ],
+      "lab_fixed": false,
+      "evidence_hash": "d32114a5c3fe6f4527831ef30550d30ed4e6cb1ed5ca62dded0437c44085504d"
+    }
+  ]
+}
